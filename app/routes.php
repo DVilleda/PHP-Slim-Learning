@@ -9,6 +9,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
 use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
+use Slim\Views\PhpRenderer;
+
+
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
         // CORS Pre-Flight OPTIONS Request Handler
@@ -30,7 +33,27 @@ return function (App $app) {
         return $response;
     });
 
-    $app->post('/books', function ($request, $response, array $args){
+    //Examples with views.
+    $app->get('/temp', function (Request $request, Response $response, array $args) {
+        //Construct the view
+        $phpView = new PhpRenderer("../src/templates");
+        $response = $phpView->render($response, "hello.html", []);
+        return $response;
+    });
 
+    $app->get('/param', function (Request $request, Response $response, array $args) {
+        $data = ["test" => "Test string"];
+        //Construct the view
+        $phpView = new PhpRenderer("../src/templates");
+        $response = $phpView->render($response, "test.php", $data);
+        return $response;
+    });
+
+    $app->post('/post', function (Request $request, Response $response, array $args) {
+        $data = ["data" => $request->getParsedBody()];
+        //Construct the view
+        $phpView = new PhpRenderer("../src/templates");
+        $response = $phpView->render($response, "test.php", $data);
+        return $response;
     });
 };
